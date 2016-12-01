@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Quiz</string>
+    <string name="quiz_name_hint">Name of the quiz</string>
+    <string name="quiz_description">Description (optional)</string>
+    <string name="question_name">Question</string>
+</resources>
