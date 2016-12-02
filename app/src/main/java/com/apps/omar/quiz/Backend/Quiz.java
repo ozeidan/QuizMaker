@@ -1,12 +1,13 @@
 package com.apps.omar.quiz.Backend;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by omar on 01.12.16.
  */
 
-public class Quiz {
+public class Quiz implements Serializable {
     private String quizName;
     private ArrayList<Question> questions = new ArrayList<>();
 
