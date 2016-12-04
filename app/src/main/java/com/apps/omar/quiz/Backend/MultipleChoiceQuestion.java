@@ -12,7 +12,7 @@ public class MultipleChoiceQuestion extends Question {
 
     public MultipleChoiceQuestion(String question)
     {
-        super(question);
+        this.setQuestion(question);
     }
 
     public void addAnswer(Answer answer)
@@ -21,6 +21,7 @@ public class MultipleChoiceQuestion extends Question {
     }
 
 
-
-
+    public ArrayList<Answer> getAnswers() {
+        return answers;
+    }
 }

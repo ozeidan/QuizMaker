@@ -77,11 +77,14 @@
                 android:layout_weight="1" />
         </LinearLayout>
 
-        <View
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"></View>
+            android:layout_weight="1">
 
-    </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>0dp
 
 </RelativeLayout>

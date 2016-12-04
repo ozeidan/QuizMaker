@@ -9,22 +9,26 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.apps.omar.quiz.Backend.Answer;
 import com.apps.omar.quiz.Backend.MultipleChoiceQuestion;
 import com.apps.omar.quiz.Backend.Question;
 import com.apps.omar.quiz.Backend.YesNoQuestion;
 
+import javax.xml.datatype.Duration;
+
 public class CreateQuestion extends AppCompatActivity {
 
     LayoutInflater inflater;
     MyRadioGroup radioGroup = new MyRadioGroup();
-
+    Question question;
 
 
     @Override
@@ -32,7 +36,41 @@ public class CreateQuestion extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_question);
         inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        addEditText();
+
+        Intent intent = getIntent();
+        if((int)(intent.getExtras().get("requestCode")) == 1)
+        {
+            question = (Question) intent.getExtras().get("question");
+            ((EditText)findViewById(R.id.question_name)).setText(question.getQuestion());
+
+            Button button = (Button) findViewById(R.id.create_question_button);
+            button.setText("Edit question");
+
+            if(question instanceof YesNoQuestion)
+            {
+
+                //((Switch)findViewById(R.id.yes_no_switch)).setChecked(true);
+                //((Switch)findViewById(R.id.yes_or_no)).setChecked(((YesNoQuestion)question).isYesOrNo());
+                //((Switch)findViewById(R.id.yes_or_no)).setVisibility(View.VISIBLE);
+
+                Switch yesNoSwitch = (Switch) findViewById(R.id.yes_no_switch);
+                Switch yesOrNo = (Switch) findViewById(R.id.yes_or_no);
+                yesNoSwitch.setChecked(true);
+                yesOrNo.setChecked(((YesNoQuestion) question).isYesOrNo());
+
+                toggleYesNo(yesNoSwitch);
+
+            }
+            else
+            {
+                for(Answer answer : ((MultipleChoiceQuestion)question).getAnswers())
+                {
+                    addEditText(answer);
+                }
+
+            }
+        }
+        addEditText(null);
 
     }
 
@@ -63,6 +101,7 @@ public class CreateQuestion extends AppCompatActivity {
         if(questionName.getText().length() == 0)
         {
             //Hint user to enter a name
+            Toast.makeText(this, "You have to enter a question!", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -99,12 +138,14 @@ public class CreateQuestion extends AppCompatActivity {
 
             if (empty) {
                 //Hint user to enter an answer
+                Toast.makeText(this, "You have to enter answers!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if(noCorrectAnswer)
             {
                 //Hint user to set an answer as correct
+                Toast.makeText(this, "Which one is the correct answer?", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -154,7 +195,7 @@ public class CreateQuestion extends AppCompatActivity {
 
             if(child == backet)
             {
-                addEditText();
+                addEditText(null);
             }
         }
         else
@@ -165,15 +206,22 @@ public class CreateQuestion extends AppCompatActivity {
 
     }
 
-    private void addEditText()
+    private ViewGroup addEditText(Answer answer)
     {
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.answer_layout, null, false);
         EditText editText = (EditText) view.getChildAt(1);
         RadioButton radioButton = (RadioButton) view.getChildAt(0);
+        if(answer != null)
+        {
+            editText.setText(answer.answer);
+            radioButton.setChecked(answer.correctAnswer);
+        }
         radioGroup.addButton(radioButton);
         addTextWatcher(editText);
         ViewGroup parent = (ViewGroup) findViewById(R.id.linear_layout);
         parent.addView(view);
+        return view;
     }
+
 
 }

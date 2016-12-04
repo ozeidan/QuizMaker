@@ -8,7 +8,8 @@ import java.util.ArrayList;
  */
 
 public class Quiz implements Serializable {
-    private String quizName;
+    private String quizName = null;
+    private String quizDescription = null;
     private ArrayList<Question> questions = new ArrayList<>();
 
     public String getQuizName() {
@@ -33,4 +34,11 @@ public class Quiz implements Serializable {
 
     }
 
+    public String getQuizDescription() {
+        return quizDescription;
+    }
+
+    public void setQuizDescription(String quizDescription) {
+        this.quizDescription = quizDescription;
+    }
 }

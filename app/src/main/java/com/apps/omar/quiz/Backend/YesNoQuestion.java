@@ -9,8 +9,13 @@ public class YesNoQuestion extends Question{
 
     public YesNoQuestion(String question, boolean yesOrNo)
     {
-        super(question);
+        this.setQuestion(question);
         this.yesOrNo = yesOrNo;
+    }
+
+    public YesNoQuestion()
+    {
+
     }
 
     public boolean isYesOrNo() {

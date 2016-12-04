@@ -10,21 +10,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.apps.omar.quiz.CreateQuiz">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <Button
-            android:text="Create quiz"
-            android:layout_width="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:id="@+id/create_quiz_button"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_height="wrap_content"
-            android:onClick="quit" />
-    </RelativeLayout>
-
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -36,8 +21,6 @@
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
             android:ems="10"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
             android:id="@+id/quiz_name"
             android:hint="@string/quiz_name_hint" />
 
@@ -56,19 +39,22 @@
             android:id="@+id/add_question_button"
             android:onClick="addQuestion" />
 
-        <ScrollView
+        <ListView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
-
-            <ListView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/question_list" />
-        </ScrollView>
+            android:layout_height="match_parent"
+            android:id="@+id/question_list"
+            android:paddingTop="10dp" />
 
     </LinearLayout>
+
+    <Button
+        android:text="Create quiz"
+        android:layout_width="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/create_quiz_button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_height="wrap_content"
+        android:onClick="createQuiz"/>
 
 </RelativeLayout>
