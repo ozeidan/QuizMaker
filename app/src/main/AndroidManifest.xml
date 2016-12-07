@@ -17,7 +17,8 @@
         </activity>
         <activity android:name=".CreateQuiz" />
         <activity android:name=".CreateQuestion" />
-        <activity android:name=".QuizMenu"></activity>
+        <activity android:name=".QuizMenu" />
+        <activity android:name=".PlayQuiz"></activity>
     </application>
 
 </manifest>

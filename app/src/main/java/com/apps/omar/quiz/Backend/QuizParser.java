@@ -5,25 +5,36 @@ package com.apps.omar.quiz.Backend;
  * Class to save and load quizes to/from xml files.
  *
  */
-import android.content.Context;
-import android.util.Log;
 
-import org.w3c.dom.*;
+import android.content.Context;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import java.io.*;
-import java.util.ArrayList;
-
 public class QuizParser {
+    private static boolean loaded = false;
+    private static ArrayList<Quiz> quizList;
+
     public static void saveQuiz(Quiz quiz, Context context)
     {
+        if (loaded) {
+            quizList.add(quiz);
+        }
 
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -52,30 +63,17 @@ public class QuizParser {
 
                 //set question name
                 questionElement.setAttribute("name", question.getQuestion());
+                questionElement.setAttribute("yesNo", question instanceof YesNoQuestion ? "true" : "false");
 
-                String questionType = "";
-
-                //each question type has to be saved differently
-                if(question instanceof MultipleChoiceQuestion) {
-                    questionType = "multipleChoice";
-
-                    for(Answer answer : ((MultipleChoiceQuestion) question).getAnswers())
-                    {
-                        Element answerElement = doc.createElement("answer");
-                        answerElement.setAttribute("correctAnswer", answer.correctAnswer ? "true" : "false");
-                        answerElement.setAttribute("name", answer.answer);
-                        questionElement.appendChild(answerElement);
-                    }
+                //set answers
+                for (Answer answer : question.getAnswers()) {
+                    Element answerElement = doc.createElement("answer");
+                    answerElement.setAttribute("name", answer.getAnswer());
+                    answerElement.setAttribute("correct", answer.isCorrect() ? "true" : "false");
+                    questionElement.appendChild(answerElement);
                 }
-                else if(question instanceof YesNoQuestion) {
-                    questionType = "yesNo";
-                    //set the correct answer to the yes/no question
-                    questionElement.setAttribute("yesOrNo", ((YesNoQuestion) question).isYesOrNo() ? "true" : "false");
-                }
-                else
-                    throw new RuntimeException("question must be either multiple choice or yes no");
 
-                questionElement.setAttribute("questionType", questionType);
+
                 rootElement.appendChild(questionElement);
             }
 
@@ -88,12 +86,8 @@ public class QuizParser {
             file.createNewFile();
             StreamResult result = new StreamResult(file);
 
-
             //save
             transformer.transform(domSource, result);
-
-
-
         }
         catch(ParserConfigurationException | TransformerException | IOException e)
         {
@@ -104,6 +98,9 @@ public class QuizParser {
 
     public static ArrayList<Quiz> loadQuizes(Context context)
     {
+        if (loaded) {
+            return quizList;
+        }
 
         ArrayList<Quiz> quizList = new ArrayList<>();
 
@@ -113,76 +110,69 @@ public class QuizParser {
             DocumentBuilder builder = factory.newDocumentBuilder();
 
 
-            for(File file : folder.listFiles())
-            {
-                Quiz quiz = new Quiz();
+            if (folder.listFiles() != null) {
+                for (File file : folder.listFiles()) {
+                    Quiz quiz = new Quiz();
 
-                Document doc = builder.parse(file);
+                    Document doc = builder.parse(file);
 
-                doc.getDocumentElement().normalize();
+                    doc.getDocumentElement().normalize();
 
-                quiz.setQuizName(doc.getDocumentElement().getAttribute("name"));
-                quiz.setQuizDescription(doc.getDocumentElement().getAttribute("description"));
+                    quiz.setQuizName(doc.getDocumentElement().getAttribute("name"));
+                    quiz.setQuizDescription(doc.getDocumentElement().getAttribute("description"));
 
-                NodeList questions = doc.getElementsByTagName("question");
+                    NodeList questions = doc.getElementsByTagName("question");
 
-                for(int i = 0; i < questions.getLength(); i ++)
-                {
-                    Question question;
-                    Element questionElement = (Element) questions.item(i);
+                    for (int i = 0; i < questions.getLength(); i++) {
+                        Element questionElement = (Element) questions.item(i);
 
-                    String questionType = questionElement.getAttribute("questionType");
-
-                    if(questionType.equals("multipleChoice"))
-                    {
-                        question = new MultipleChoiceQuestion(questionElement.getAttribute("name"));
+                        Question question;
+                        String name = questionElement.getAttribute("name");
 
                         NodeList answers = questionElement.getChildNodes();
+                        ArrayList<Answer> answerObs = new ArrayList<>();
 
-                        for(int j = 0; j < answers.getLength(); j++)
-                        {
-
+                        for (int j = 0; j < answers.getLength(); j++) {
                             Element answerElement = (Element) answers.item(j);
 
                             String answerName = answerElement.getAttribute("name");
-                            boolean correctAnswer = answerElement.getAttribute("correctAnswer").equals("true");
+                            boolean correct = answerElement.getAttribute("correct").equals("true");
 
-                            Answer answer = new Answer(answerName, correctAnswer);
-                            ((MultipleChoiceQuestion) question).addAnswer(answer);
+                            Answer answer = new Answer(answerName, correct);
+                            answerObs.add(answer);
                         }
 
-                    }
-                    else if(questionType.equals("yesNo"))
-                    {
-                        question = new YesNoQuestion(questionElement.getAttribute("name"), (questionElement.getAttribute("yesOrNo").equals("true")));
-                    }
-                    else
-                    {
-                        throw new RuntimeException("Questiontype unknown");
+
+                        if (questionElement.getAttribute("yesNo").equals("true")) {
+                            question = new YesNoQuestion(name, answerObs);
+                        } else {
+                            question = new Question(name, answerObs);
+                        }
+
+                        quiz.addQuestion(question);
                     }
 
-                    quiz.addQuestion(question);
+                    quizList.add(quiz);
+
                 }
-
-                quizList.add(quiz);
-
             }
 
         }
-
-
         catch(ParserConfigurationException | SAXException | IOException e)
         {
             e.printStackTrace();
         }
-        finally {
-            return quizList;
-        }
+
+        return quizList;
+
     }
 
     public static boolean deleteQuiz(Context context, Quiz quiz)
     {
         File file = new File(context.getFilesDir() + "/quizes/", quiz.getQuizName());
+
+        if (loaded)
+            quizList.remove(quiz);
 
         return file.delete();
     }

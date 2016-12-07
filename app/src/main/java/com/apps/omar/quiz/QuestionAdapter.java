@@ -10,16 +10,14 @@ import android.widget.TextView;
 import com.apps.omar.quiz.Backend.Question;
 import com.apps.omar.quiz.Backend.Quiz;
 
-import java.util.ArrayList;
-
 /**
  * Created by omar on 03.12.16.
  */
 
 public class QuestionAdapter extends BaseAdapter {
+    private static LayoutInflater inflater = null;
     Context context;
     Quiz data;
-    private static LayoutInflater inflater = null;
 
     public QuestionAdapter(Context context, Quiz data) {
         this.context = context;
@@ -48,7 +46,7 @@ public class QuestionAdapter extends BaseAdapter {
         View vi = convertView;
         Question question = data.getQuestions().get(position);
         if (vi == null)
-            vi = new TextView(context);
+            vi = inflater.inflate(R.layout.question_list_item, null);
 
         ((TextView)vi).setText(question.getQuestion());
 

@@ -1,15 +1,15 @@
 package com.apps.omar.quiz;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -18,11 +18,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.apps.omar.quiz.Backend.Answer;
-import com.apps.omar.quiz.Backend.MultipleChoiceQuestion;
 import com.apps.omar.quiz.Backend.Question;
 import com.apps.omar.quiz.Backend.YesNoQuestion;
 
-import javax.xml.datatype.Duration;
+import java.util.ArrayList;
 
 public class CreateQuestion extends AppCompatActivity {
 
@@ -38,50 +37,26 @@ public class CreateQuestion extends AppCompatActivity {
         inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         Intent intent = getIntent();
+
+
         if((int)(intent.getExtras().get("requestCode")) == 1)
         {
             question = (Question) intent.getExtras().get("question");
-            ((EditText)findViewById(R.id.question_name)).setText(question.getQuestion());
-
-            Button button = (Button) findViewById(R.id.create_question_button);
-            button.setText("Edit question");
-
-            if(question instanceof YesNoQuestion)
-            {
-
-                //((Switch)findViewById(R.id.yes_no_switch)).setChecked(true);
-                //((Switch)findViewById(R.id.yes_or_no)).setChecked(((YesNoQuestion)question).isYesOrNo());
-                //((Switch)findViewById(R.id.yes_or_no)).setVisibility(View.VISIBLE);
-
-                Switch yesNoSwitch = (Switch) findViewById(R.id.yes_no_switch);
-                Switch yesOrNo = (Switch) findViewById(R.id.yes_or_no);
-                yesNoSwitch.setChecked(true);
-                yesOrNo.setChecked(((YesNoQuestion) question).isYesOrNo());
-
-                toggleYesNo(yesNoSwitch);
-
-            }
-            else
-            {
-                for(Answer answer : ((MultipleChoiceQuestion)question).getAnswers())
-                {
-                    addEditText(answer);
-                }
-
-            }
+            initWithQuestion(question);
         }
-        addEditText(null);
+
+        addEditText(false, "");
 
     }
 
 
     public void toggleYesNo(View view)
     {
-        View scrollable = (View) findViewById(R.id.answer_scroll);
-        View answerText = (View) findViewById(R.id.answer_text_view);
-        View yesOrNo = (View) findViewById(R.id.yes_or_no);
+        View scrollable = findViewById(R.id.answer_scroll);
+        View answerText = findViewById(R.id.answer_text_view);
+        View yesOrNo = findViewById(R.id.yes_or_no);
 
-        if(((Switch)view).isChecked()) {
+        if (answerText.getVisibility() == View.VISIBLE) {
             answerText.setVisibility(View.INVISIBLE);
             scrollable.setVisibility(View.INVISIBLE);
             yesOrNo.setVisibility(View.VISIBLE);
@@ -106,18 +81,14 @@ public class CreateQuestion extends AppCompatActivity {
         }
 
         Switch yesNo = (Switch) findViewById(R.id.yes_no_switch);
-
         Question question = null;
 
 
         if(!yesNo.isChecked()) {
 
             ViewGroup parent = (ViewGroup) findViewById(R.id.linear_layout);
+            ArrayList<Answer> answers = new ArrayList<>();
 
-
-            question = new MultipleChoiceQuestion(questionName.getText().toString());
-
-            boolean empty = true;
             boolean noCorrectAnswer = true;
 
             for (int i = 0; i < parent.getChildCount(); i++) {
@@ -125,18 +96,15 @@ public class CreateQuestion extends AppCompatActivity {
                 RadioButton yesNoButton = (RadioButton) parent2.getChildAt(0);
                 EditText answer = (EditText) parent2.getChildAt(1);
                 if (answer.getText().length() > 0) {
-                    empty = false;
-                    Answer newAnswer = new Answer(answer.getText().toString(), yesNoButton.isChecked());
-                    ((MultipleChoiceQuestion)question).addAnswer(newAnswer);
-
                     if(yesNoButton.isChecked())
-                    {
                         noCorrectAnswer = false;
-                    }
+
+                    Answer newAnswer = new Answer(answer.getText().toString(), yesNoButton.isChecked());
+                    answers.add(newAnswer);
                 }
             }
 
-            if (empty) {
+            if (answers.isEmpty()) {
                 //Hint user to enter an answer
                 Toast.makeText(this, "You have to enter answers!", Toast.LENGTH_SHORT).show();
                 return;
@@ -148,6 +116,8 @@ public class CreateQuestion extends AppCompatActivity {
                 Toast.makeText(this, "Which one is the correct answer?", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            question = new Question(questionName.getText().toString(), answers);
         }
         else if(yesNo.isChecked()) //just to clarify
         {
@@ -195,32 +165,49 @@ public class CreateQuestion extends AppCompatActivity {
 
             if(child == backet)
             {
-                addEditText(null);
+                addEditText(false, "");
             }
         }
         else
         {
-            parent.removeView((View)child.getParent());
-            backet.requestFocus();
+            if (child != backet) {
+                parent.removeView((View) child.getParent());
+                backet.requestFocus();
+            }
         }
 
     }
 
-    private ViewGroup addEditText(Answer answer)
+    private ViewGroup addEditText(boolean checked, String text)
     {
-        ViewGroup view = (ViewGroup) inflater.inflate(R.layout.answer_layout, null, false);
-        EditText editText = (EditText) view.getChildAt(1);
-        RadioButton radioButton = (RadioButton) view.getChildAt(0);
-        if(answer != null)
-        {
-            editText.setText(answer.answer);
-            radioButton.setChecked(answer.correctAnswer);
-        }
-        radioGroup.addButton(radioButton);
-        addTextWatcher(editText);
+        ViewGroup view = (ViewGroup) inflater.inflate(R.layout.answer_add_layout, null, false);
+        EditText answerText = (EditText) view.findViewById(R.id.answer_edit_text);
+        RadioButton isCorrect = (RadioButton) view.findViewById(R.id.answer_is_correct);
+
+        answerText.setText(text);
+        isCorrect.setChecked(checked);
+
+        radioGroup.addButton(isCorrect);
+        addTextWatcher(answerText);
+
         ViewGroup parent = (ViewGroup) findViewById(R.id.linear_layout);
         parent.addView(view);
+
         return view;
+    }
+
+    private void initWithQuestion(Question question) {
+        ((EditText) findViewById(R.id.question_name)).setText(question.getQuestion());
+
+        if (question instanceof YesNoQuestion) {
+            ((Switch) findViewById(R.id.yes_no_switch)).setChecked(true);
+            ((Switch) findViewById(R.id.yes_or_no)).setChecked(((YesNoQuestion) question).isYesOrNo());
+            toggleYesNo(new View(this));
+        } else {
+            for (Answer answer : question.getAnswers()) {
+                addEditText(answer == question.getCorrectAnswer(), answer.getAnswer());
+            }
+        }
     }
 
 

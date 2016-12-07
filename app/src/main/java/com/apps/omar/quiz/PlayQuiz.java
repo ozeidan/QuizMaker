@@ -1,0 +1,117 @@
+package com.apps.omar.quiz;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.apps.omar.quiz.Backend.Answer;
+import com.apps.omar.quiz.Backend.Question;
+import com.apps.omar.quiz.Backend.Quiz;
+
+public class PlayQuiz extends AppCompatActivity {
+
+    private Quiz quiz;
+    private Question currentQuestion;
+    private Button correctButton;
+    private boolean quizDone = false;
+    private Button nextButton;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_play_quiz);
+
+        Intent intent = getIntent();
+        try {
+            int requestCode = (int) intent.getExtras().get("requestCode");
+        } catch (Exception e) {
+            //No request code
+        }
+
+        quiz = (Quiz) intent.getExtras().get("quiz");
+
+        nextButton = (Button) findViewById(R.id.next_question_button);
+
+        playQuiz();
+    }
+
+
+    private void playQuiz() {
+        TextView textView = (TextView) findViewById(R.id.play_quiz_question_name);
+        Question currentQuestion = quiz.playRandomQuestion();
+        textView.setText(currentQuestion.getQuestion());
+        ViewGroup answerButtons = (ViewGroup) findViewById(R.id.answer_button_list);
+        answerButtons.removeAllViews();
+
+        LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(LAYOUT_INFLATER_SERVICE);
+
+        for (Answer answer : currentQuestion.getAnswers()) {
+            Button answerButton = (Button) layoutInflater.inflate(R.layout.answer_button, null);
+            answerButton.setText(answer.getAnswer());
+            answerButtons.addView(answerButton);
+            setButtonOnClick(answerButton);
+
+            if (answer == currentQuestion.getCorrectAnswer()) {
+                correctButton = answerButton;
+            }
+        }
+    }
+
+    private void setButtonOnClick(Button button) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view == correctButton) {
+                    win();
+                } else {
+                    lose((Button) view);
+                }
+            }
+        });
+    }
+
+
+    private void win() {
+        if (!quizDone) {
+            correctButton.setBackgroundColor(Color.rgb(0, 230, 0));
+            quizDone = true;
+            updateButton();
+        }
+    }
+
+    private void lose(Button button) {
+        if (!quizDone) {
+            correctButton.setBackgroundColor(Color.rgb(0, 230, 0));
+            button.setBackgroundColor(Color.rgb(230, 0, 0));
+            quizDone = true;
+            updateButton();
+        }
+    }
+
+    private void updateButton() {
+        nextButton.setVisibility(View.VISIBLE);
+        if (!quiz.hasQuestion()) {
+            nextButton.setText("Finish");
+        }
+    }
+
+    public void nextQuestion(View view) {
+        if (quiz.hasQuestion()) {
+
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("quiz", quiz);
+            setResult(Activity.RESULT_OK, resultIntent);
+            finish();
+        } else {
+            finish();
+        }
+    }
+}
+

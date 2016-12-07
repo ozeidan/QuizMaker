@@ -2,8 +2,8 @@ package com.apps.omar.quiz;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -30,12 +30,28 @@ public class QuizMenu extends AppCompatActivity {
         ListView quizList = (ListView) findViewById(R.id.quiz_list);
         quizList.setAdapter(adapter);
 
-        quizList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                editQuiz(i);
+        Intent intent = getIntent();
+        int requestCode = (int) intent.getExtras().get("requestCode");
+
+        switch (requestCode) {
+            case 1: {
+                quizList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        editQuiz(i);
+                    }
+                });
+                break;
             }
-        });
+            case 0:
+                quizList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        playQuiz(i);
+                    }
+                });
+                findViewById(R.id.new_quiz_button).setVisibility(View.INVISIBLE);
+        }
     }
 
     public void createQuiz(View view) {
@@ -51,6 +67,19 @@ public class QuizMenu extends AppCompatActivity {
         intent.putExtra("quiz", quizes.get(position));
         intent.putExtra("requestCode", 1);
         startActivityForResult(intent, 1);
+    }
+
+
+    public void playQuiz(int position) {
+        Quiz quiz = quizes.get(position);
+        playQuiz(quiz);
+    }
+
+    public void playQuiz(Quiz quiz) {
+        Intent intent = new Intent(this, PlayQuiz.class);
+        intent.putExtra("quiz", quiz);
+        intent.putExtra("requestCode", 2);
+        startActivityForResult(intent, 2);
     }
 
     @Override
@@ -84,6 +113,14 @@ public class QuizMenu extends AppCompatActivity {
                     QuizParser.saveQuiz(newQuiz, this);
                 }
                 break;
+            }
+            case (2): {
+                if (resultCode == Activity.RESULT_OK) {
+                    Quiz quiz = (Quiz) data.getExtras().get("quiz");
+                    if (quiz.hasQuestion()) {
+                        playQuiz(quiz);
+                    }
+                }
             }
         }
     }

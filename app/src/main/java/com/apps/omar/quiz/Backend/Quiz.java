@@ -2,6 +2,7 @@ package com.apps.omar.quiz.Backend;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by omar on 01.12.16.
@@ -11,17 +12,18 @@ public class Quiz implements Serializable {
     private String quizName = null;
     private String quizDescription = null;
     private ArrayList<Question> questions = new ArrayList<>();
+    private Random random = new Random();
 
     public String getQuizName() {
         return quizName;
     }
 
-    public ArrayList<Question> getQuestions() {
-        return questions;
-    }
-
     public void setQuizName(String quizName) {
         this.quizName = quizName;
+    }
+
+    public ArrayList<Question> getQuestions() {
+        return questions;
     }
 
     public void setQuestions(ArrayList<Question> questions) {
@@ -40,5 +42,15 @@ public class Quiz implements Serializable {
 
     public void setQuizDescription(String quizDescription) {
         this.quizDescription = quizDescription;
+    }
+
+    public Question playRandomQuestion() {
+        Question question = questions.get(random.nextInt(questions.size()));
+        questions.remove(question);
+        return question;
+    }
+
+    public boolean hasQuestion() {
+        return !questions.isEmpty();
     }
 }

@@ -1,8 +1,8 @@
 package com.apps.omar.quiz;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
@@ -22,6 +22,13 @@ public class MainActivity extends AppCompatActivity {
     public void createMenu(View view)
     {
         Intent intent = new Intent(this, QuizMenu.class);
+        intent.putExtra("requestCode", 1);
+        startActivity(intent);
+    }
+
+    public void playMenu(View view) {
+        Intent intent = new Intent(this, QuizMenu.class);
+        intent.putExtra("requestCode", 0);
         startActivity(intent);
     }
 

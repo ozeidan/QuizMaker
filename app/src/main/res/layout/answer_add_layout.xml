@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
         <RadioButton
+            android:id="@+id/answer_is_correct"
             android:layout_width="45dp"
             android:layout_height="match_parent"
             ></RadioButton>
 
         <EditText
+            android:id="@+id/answer_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:ems="10" />
+            android:ems="10"
+            android:inputType="textPersonName" />
     </LinearLayout>
 

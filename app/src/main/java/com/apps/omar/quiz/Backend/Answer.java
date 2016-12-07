@@ -7,11 +7,24 @@ import java.io.Serializable;
  */
 
 public class Answer implements Serializable{
-    public String answer;
-    public boolean correctAnswer;
+    private String answer;
+    private boolean correct;
 
-    public Answer(String answer, boolean correctAnswer) {
+    public Answer(String answer) {
         this.answer = answer;
-        this.correctAnswer = correctAnswer;
+        this.correct = false;
+    }
+
+    public Answer(String answer, boolean correct) {
+        this.answer = answer;
+        this.correct = correct;
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public boolean isCorrect() {
+        return correct;
     }
 }
