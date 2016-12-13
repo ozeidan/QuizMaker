@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -17,6 +20,7 @@ public class QuizMenu extends AppCompatActivity {
 
     QuizAdapter adapter;
     ArrayList<Quiz> quizes;
+    ListView quizList;
     private int deleteQuiz;
 
     @Override
@@ -27,7 +31,7 @@ public class QuizMenu extends AppCompatActivity {
         quizes = QuizParser.loadQuizes(this);
         adapter = new QuizAdapter(this, quizes);
 
-        ListView quizList = (ListView) findViewById(R.id.quiz_list);
+        quizList = (ListView) findViewById(R.id.quiz_list);
         quizList.setAdapter(adapter);
 
         Intent intent = getIntent();
@@ -41,6 +45,7 @@ public class QuizMenu extends AppCompatActivity {
                         editQuiz(i);
                     }
                 });
+                registerForContextMenu(quizList);
                 break;
             }
             case 0:
@@ -51,6 +56,29 @@ public class QuizMenu extends AppCompatActivity {
                     }
                 });
                 findViewById(R.id.new_quiz_button).setVisibility(View.INVISIBLE);
+                break;
+        }
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v == quizList) {
+            menu.add(Menu.NONE, 1, Menu.NONE, "Delete");
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case 1: {
+                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                QuizParser.deleteQuiz(this, (Quiz) adapter.getItem(info.position));
+                quizes.remove(info.position);
+                adapter.notifyDataSetChanged();
+            }
+            default:
+                return super.onContextItemSelected(item);
         }
     }
 

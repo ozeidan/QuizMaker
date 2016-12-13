@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -14,12 +17,11 @@ import android.widget.Toast;
 import com.apps.omar.quiz.Backend.Question;
 import com.apps.omar.quiz.Backend.Quiz;
 import com.apps.omar.quiz.Backend.QuizParser;
+import com.apps.omar.quiz.Backend.Score;
 
 public class CreateQuiz extends AppCompatActivity {
-
     QuestionAdapter adapter;
     private Quiz quiz = new Quiz();
-    private ListView questionList;
     private int deleteItem;
 
     @Override
@@ -28,7 +30,7 @@ public class CreateQuiz extends AppCompatActivity {
         setContentView(R.layout.activity_create_quiz);
 
         //set custom adapter on questoin list
-        questionList = (ListView) findViewById(R.id.question_list);
+        ListView questionList = (ListView) findViewById(R.id.question_list);
         adapter = new QuestionAdapter(this, quiz);
         questionList.setAdapter(adapter);
 
@@ -52,6 +54,28 @@ public class CreateQuiz extends AppCompatActivity {
 
         adapter = new QuestionAdapter(this, quiz);
         questionList.setAdapter(adapter);
+
+        //setcontextview
+        registerForContextMenu(questionList);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(Menu.NONE, 1, Menu.NONE, "Delete");
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case 1: {
+                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                quiz.removeQuestion(info.position);
+                adapter.notifyDataSetChanged();
+            }
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     // when clicking the add questoin button we wills start the createquetsion activity
@@ -134,6 +158,8 @@ public class CreateQuiz extends AppCompatActivity {
 
         if(quizDescription.getText().length() > 0)
             quiz.setQuizDescription(quizDescription.getText().toString());
+
+        Score.initQuizId(quiz);
 
         Intent resultIntent = new Intent();
         resultIntent.putExtra("quiz", quiz);

@@ -13,6 +13,7 @@ public class Quiz implements Serializable {
     private String quizDescription = null;
     private ArrayList<Question> questions = new ArrayList<>();
     private Random random = new Random();
+    private long id = -1;
 
     public String getQuizName() {
         return quizName;
@@ -36,6 +37,10 @@ public class Quiz implements Serializable {
 
     }
 
+    public void removeQuestion(int index) {
+        questions.remove(index);
+    }
+
     public String getQuizDescription() {
         return quizDescription;
     }
@@ -52,5 +57,14 @@ public class Quiz implements Serializable {
 
     public boolean hasQuestion() {
         return !questions.isEmpty();
+    }
+
+    public long getId() {
+
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

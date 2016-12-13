@@ -13,63 +13,63 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true">
+        android:layout_alignParentTop="true">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
 
             <EditText
+                android:id="@+id/question_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:ems="10"
-                android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:id="@+id/question_name"
-                android:hint="@string/question_name" />
+                android:layout_alignParentTop="true"
+                android:ems="10"
+                android:hint="@string/question_name"
+                android:inputType="textPersonName" />
 
             <Switch
-                android:text="Yes / NO question?"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:id="@+id/yes_no_switch"
-                android:onClick="toggleYesNo"
-                android:checked="false"
-                android:paddingBottom="20dp" />
-
-            <Switch
-                android:text="Yes or no?"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:checked="false"
+                android:onClick="toggleYesNo"
+                android:paddingBottom="20dp"
+                android:text="Yes / No question?" />
+
+            <Switch
                 android:id="@+id/yes_or_no"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Yes or no?"
                 android:visibility="invisible" />
 
             <TextView
-                android:text="Answers:"
+                android:id="@+id/answer_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/answer_text_view"
+                android:text="Answers:"
                 android:textSize="20sp" />
 
             <ScrollView
+                android:id="@+id/answer_scroll"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/answer_scroll">
+                android:layout_height="match_parent">
 
                 <LinearLayout
+                    android:id="@+id/linear_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:id="@+id/linear_layout"
-                    android:animateLayoutChanges="true">
+                    android:animateLayoutChanges="true"
+                    android:orientation="vertical">
 
 
                 </LinearLayout>
@@ -78,13 +78,13 @@
         </LinearLayout>
 
         <Button
-            android:text="Add question"
             android:id="@+id/create_question_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:layout_height="wrap_content"
             android:onClick="createButton"
-            android:layout_width="wrap_content" />
+            android:text="Add question" />
 
     </RelativeLayout>
 
