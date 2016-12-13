@@ -15,6 +15,12 @@ public class Quiz implements Serializable {
     private Random random = new Random();
     private long id = -1;
 
+    public Quiz()
+    {
+        id = Score.getId(this);
+    }
+
+
     public String getQuizName() {
         return quizName;
     }
@@ -25,10 +31,6 @@ public class Quiz implements Serializable {
 
     public ArrayList<Question> getQuestions() {
         return questions;
-    }
-
-    public void setQuestions(ArrayList<Question> questions) {
-        this.questions = questions;
     }
 
     public void addQuestion(Question question)
@@ -64,7 +66,4 @@ public class Quiz implements Serializable {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
 }
