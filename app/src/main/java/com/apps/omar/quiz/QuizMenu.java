@@ -99,13 +99,13 @@ public class QuizMenu extends AppCompatActivity {
 
 
     public void playQuiz(int position) {
-        Quiz quiz = quizes.get(position);
-        playQuiz(quiz);
+
+        playQuiz(new GameState(quizes.get(position)));
     }
 
-    public void playQuiz(Quiz quiz) {
+    public void playQuiz(GameState gameState) {
         Intent intent = new Intent(this, PlayQuiz.class);
-        intent.putExtra("quiz", quiz);
+        intent.putExtra("gameState", gameState);
         intent.putExtra("requestCode", 2);
         startActivityForResult(intent, 2);
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
@@ -145,9 +145,13 @@ public class QuizMenu extends AppCompatActivity {
             }
             case (2): {
                 if (resultCode == Activity.RESULT_OK) {
-                    Quiz quiz = (Quiz) data.getExtras().get("quiz");
-                    if (quiz.hasQuestion()) {
-                        playQuiz(quiz);
+                    GameState gameState = (GameState) data.getExtras().get("gameState");
+                    if (gameState.hasQuestion()) {
+                        playQuiz(gameState);
+                    }
+                    else
+                    {
+                        //Spiel vorbei
                     }
                 }
             }

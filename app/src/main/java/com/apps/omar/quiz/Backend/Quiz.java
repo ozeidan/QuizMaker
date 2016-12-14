@@ -51,16 +51,6 @@ public class Quiz implements Serializable {
         this.quizDescription = quizDescription;
     }
 
-    public Question playRandomQuestion() {
-        Question question = questions.get(random.nextInt(questions.size()));
-        questions.remove(question);
-        return question;
-    }
-
-    public boolean hasQuestion() {
-        return !questions.isEmpty();
-    }
-
     public long getId() {
 
         return id;
