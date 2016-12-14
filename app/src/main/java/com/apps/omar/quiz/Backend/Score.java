@@ -18,11 +18,8 @@ public class Score {
     private static boolean initialized = false;
     private static String FILENAME = "score";
 
-    private static void initialize(Context context) {
-        if (!initialized) {
-            initialized = true;
-        }
-        else
+    public static void initialize(Context context) {
+        if (!initialized)
         {
             File file = new File(context.getFilesDir(), FILENAME);
 
@@ -48,6 +45,10 @@ public class Score {
             catch(IOException | ClassNotFoundException e)
             {
                 e.printStackTrace();
+            }
+            finally
+            {
+                initialized = true;
             }
         }
     }
@@ -107,12 +108,12 @@ public class Score {
 
 
     private static class ScoreBoard implements Serializable {
-        public HashMap<Long, ScoreStruct> scores;
+        public HashMap<Long, ScoreStruct> scores = new HashMap<>();
 
         public long idCount = 0;
     }
     private static class ScoreStruct {
         public int score = 0;
-        public int attempts = 0;
+        //public int attempts = 0;
     }
 }

@@ -159,8 +159,6 @@ public class CreateQuiz extends AppCompatActivity {
         if(quizDescription.getText().length() > 0)
             quiz.setQuizDescription(quizDescription.getText().toString());
 
-        Score.initQuizId(quiz);
-
         Intent resultIntent = new Intent();
         resultIntent.putExtra("quiz", quiz);
         setResult(Activity.RESULT_OK, resultIntent);
