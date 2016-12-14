@@ -108,6 +108,7 @@ public class QuizMenu extends AppCompatActivity {
         intent.putExtra("quiz", quiz);
         intent.putExtra("requestCode", 2);
         startActivityForResult(intent, 2);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
     }
 
     @Override
