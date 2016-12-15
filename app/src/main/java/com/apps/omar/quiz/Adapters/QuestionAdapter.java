@@ -1,4 +1,4 @@
-package com.apps.omar.quiz;
+package com.apps.omar.quiz.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,18 +9,17 @@ import android.widget.TextView;
 
 import com.apps.omar.quiz.Backend.Question;
 import com.apps.omar.quiz.Backend.Quiz;
+import com.apps.omar.quiz.R;
 
 /**
  * Created by omar on 03.12.16.
  */
 
 public class QuestionAdapter extends BaseAdapter {
-    private static LayoutInflater inflater = null;
-    Context context;
-    Quiz data;
+    private LayoutInflater inflater = null;
+    private Quiz data;
 
     public QuestionAdapter(Context context, Quiz data) {
-        this.context = context;
         this.data = data;
         inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);

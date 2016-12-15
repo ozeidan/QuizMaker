@@ -14,10 +14,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.apps.omar.quiz.Adapters.QuestionAdapter;
 import com.apps.omar.quiz.Backend.Question;
 import com.apps.omar.quiz.Backend.Quiz;
 import com.apps.omar.quiz.Backend.QuizParser;
-import com.apps.omar.quiz.Backend.Score;
 
 public class CreateQuiz extends AppCompatActivity {
     QuestionAdapter adapter;

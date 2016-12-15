@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.apps.omar.quiz.Adapters.QuizAdapter;
 import com.apps.omar.quiz.Backend.Quiz;
 import com.apps.omar.quiz.Backend.QuizParser;
 
@@ -151,7 +152,9 @@ public class QuizMenu extends AppCompatActivity {
                     }
                     else
                     {
-                        //Spiel vorbei
+                        Intent intent = new Intent(this, ScoreScreen.class);
+                        intent.putExtra("gameState", gameState);
+                        startActivity(intent);
                     }
                 }
             }

@@ -1,4 +1,4 @@
-package com.apps.omar.quiz;
+package com.apps.omar.quiz.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.apps.omar.quiz.Backend.Quiz;
+import com.apps.omar.quiz.R;
 
 import org.w3c.dom.Text;
 
