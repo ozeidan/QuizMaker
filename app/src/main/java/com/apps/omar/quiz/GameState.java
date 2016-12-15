@@ -1,13 +1,12 @@
 package com.apps.omar.quiz;
 
-import android.util.Pair;
-
 import com.apps.omar.quiz.Backend.Answer;
 import com.apps.omar.quiz.Backend.Question;
 import com.apps.omar.quiz.Backend.Quiz;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 /**
@@ -15,14 +14,15 @@ import java.util.Random;
  */
 
 public class GameState implements Serializable{
-    private int correctlyAnsweredCount = 0;
 
-    private ArrayList<MyPair>  answerHistory = new ArrayList<>();
+    private AnswerHistory  answerHistory = new AnswerHistory();
 
     private ArrayList<Question> unanswered;
 
     private Question currentQuestion;
     private boolean answering = false;
+
+    private int correctlyAnswered = 0;
 
     private Random random = new Random();
 
@@ -35,17 +35,8 @@ public class GameState implements Serializable{
         unanswered = quiz.getQuestions();
     }
 
-    public ArrayList<MyPair> getAnswerHistory() {
+    public AnswerHistory getAnswerHistory() {
         return answerHistory;
-    }
-
-    public int getCorrectlyAnsweredCount() {
-        return correctlyAnsweredCount;
-    }
-
-    public int getAnsweredCount()
-    {
-        return answerHistory.size();
     }
 
     public Question getQuestion()
@@ -71,17 +62,25 @@ public class GameState implements Serializable{
             throw new RuntimeException();
         }
         answering = false;
-        if (answer == currentQuestion.getCorrectAnswer())
+
+        boolean correct = answer == currentQuestion.getCorrectAnswer();
+        answerHistory.addEntry(currentQuestion, correct);
+
+        if(correct)
         {
-            correctlyAnsweredCount++;
-            answerHistory.add(new MyPair(currentQuestion, true));
-            return  true;
+            correctlyAnswered++;
         }
-        else
-        {
-            answerHistory.add(new MyPair(currentQuestion, false));
-            return false;
-        }
+
+        return correct;
+    }
+
+    public String getScorePercent()
+    {
+        float score = ((float) (correctlyAnswered) / (float) (answerHistory.getQuestionCount())) * 100;
+        String stringScore = Float.toString(score);
+        stringScore = stringScore.substring(0, Math.min(5, stringScore.length()));
+        stringScore += "%";
+        return stringScore;
     }
 
 
@@ -95,15 +94,46 @@ public class GameState implements Serializable{
         return currentQuestion.getAnswers();
     }
 
-    //implemented own pair class because Pair is not serializable
-    private class MyPair implements Serializable
-    {
-        public Question question;
-        public boolean correct;
 
-        public MyPair(Question question, boolean correct) {
-            this.question = question;
-            this.correct = correct;
+
+    public class AnswerHistory implements Serializable, Iterable<AnswerHistory.QuestionCorrectPair>
+    {
+        private ArrayList<QuestionCorrectPair> history = new ArrayList<>();
+
+        //implemented own pair class because Pair is not serializable
+        public class QuestionCorrectPair implements Serializable
+        {
+            public Question question;
+            public boolean correct;
+
+            public QuestionCorrectPair(Question question, boolean correct) {
+                this.question = question;
+                this.correct = correct;
+            }
         }
+
+        @Override
+        public Iterator<QuestionCorrectPair> iterator() {
+            return history.iterator();
+        }
+
+        public void addEntry(Question question, boolean correct)
+        {
+            history.add(new QuestionCorrectPair(question, correct));
+        }
+
+        public int getQuestionCount()
+        {
+            return history.size();
+        }
+
+
+        public QuestionCorrectPair getEntry(int position)
+        {
+            return history.get(position);
+        }
+
     }
+
+
 }
