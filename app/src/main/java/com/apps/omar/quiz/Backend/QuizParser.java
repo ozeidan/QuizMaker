@@ -7,13 +7,17 @@ package com.apps.omar.quiz.Backend;
  */
 
 import android.content.Context;
+import android.util.Log;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -82,14 +86,14 @@ public class QuizParser {
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource domSource = new DOMSource(doc);
             File file = new File(context.getFilesDir() + "/quizes/", quiz.getQuizName());
-            file.getParentFile().mkdirs();
-            file.createNewFile();
             StreamResult result = new StreamResult(file);
+
 
             //save
             transformer.transform(domSource, result);
+            printFile(file);
         }
-        catch(ParserConfigurationException | TransformerException | IOException e)
+        catch(ParserConfigurationException | TransformerException e)
         {
             e.printStackTrace();
         }
@@ -104,64 +108,73 @@ public class QuizParser {
 
         ArrayList<Quiz> quizList = new ArrayList<>();
 
-        try {
+
             File folder = new File(context.getFilesDir() + "/quizes/");
+
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
+
+            try {
+                DocumentBuilder builder = factory.newDocumentBuilder();
 
 
-            if (folder.listFiles() != null) {
-                for (File file : folder.listFiles()) {
-                    Quiz quiz = new Quiz();
+                if (folder.listFiles() != null) {
+                    for (File file : folder.listFiles()) {
+                        try {
+                            Quiz quiz = new Quiz();
 
-                    Document doc = builder.parse(file);
+                            Document doc = builder.parse(file);
 
-                    doc.getDocumentElement().normalize();
+                            doc.getDocumentElement().normalize();
 
-                    quiz.setQuizName(doc.getDocumentElement().getAttribute("name"));
-                    quiz.setQuizDescription(doc.getDocumentElement().getAttribute("description"));
+                            quiz.setQuizName(doc.getDocumentElement().getAttribute("name"));
+                            quiz.setQuizDescription(doc.getDocumentElement().getAttribute("description"));
 
-                    NodeList questions = doc.getElementsByTagName("question");
+                            NodeList questions = doc.getElementsByTagName("question");
 
-                    for (int i = 0; i < questions.getLength(); i++) {
-                        Element questionElement = (Element) questions.item(i);
+                            for (int i = 0; i < questions.getLength(); i++) {
+                                Element questionElement = (Element) questions.item(i);
 
-                        Question question;
-                        String name = questionElement.getAttribute("name");
+                                Question question;
+                                String name = questionElement.getAttribute("name");
 
-                        NodeList answers = questionElement.getChildNodes();
-                        ArrayList<Answer> answerObs = new ArrayList<>();
+                                NodeList answers = questionElement.getChildNodes();
+                                ArrayList<Answer> answerObs = new ArrayList<>();
 
-                        for (int j = 0; j < answers.getLength(); j++) {
-                            Element answerElement = (Element) answers.item(j);
+                                for (int j = 0; j < answers.getLength(); j++) {
+                                    Element answerElement = (Element) answers.item(j);
 
-                            String answerName = answerElement.getAttribute("name");
-                            boolean correct = answerElement.getAttribute("correct").equals("true");
+                                    String answerName = answerElement.getAttribute("name");
+                                    boolean correct = answerElement.getAttribute("correct").equals("true");
 
-                            Answer answer = new Answer(answerName, correct);
-                            answerObs.add(answer);
+                                    Answer answer = new Answer(answerName, correct);
+                                    answerObs.add(answer);
+                                }
+
+
+                                if (questionElement.getAttribute("yesNo").equals("true")) {
+                                    question = new YesNoQuestion(name, answerObs);
+                                } else {
+                                    question = new Question(name, answerObs);
+                                }
+
+                                quiz.addQuestion(question);
+                            }
+
+                            quizList.add(quiz);
+
                         }
-
-
-                        if (questionElement.getAttribute("yesNo").equals("true")) {
-                            question = new YesNoQuestion(name, answerObs);
-                        } else {
-                            question = new Question(name, answerObs);
+                        catch(SAXException | IOException e)
+                        {
+                            e.printStackTrace();
                         }
-
-                        quiz.addQuestion(question);
                     }
-
-                    quizList.add(quiz);
-
                 }
             }
+            catch(ParserConfigurationException e)
+            {
+                e.printStackTrace();
+            }
 
-        }
-        catch(ParserConfigurationException | SAXException | IOException e)
-        {
-            e.printStackTrace();
-        }
 
         return quizList;
 
@@ -181,5 +194,31 @@ public class QuizParser {
     {
         File file = new File(context.getFilesDir() + "/quizes/", fileName);
         return file.exists() && !file.isDirectory();
+    }
+
+    public static void showFiles(Context context)
+    {
+        File folder = new File(context.getFilesDir() + "/quizes/");
+        Log.d("QuizParser", "List of existing quizes:");
+        for(File file : folder.listFiles())
+        {
+            Log.d("QuizParser", file.getName());
+        }
+    }
+
+    public static void printFile(File file)
+    {
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+            String line = null;
+            while((line = bufferedReader.readLine()) != null)
+            {
+                Log.d("QuizParser", line);
+            }
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 }
