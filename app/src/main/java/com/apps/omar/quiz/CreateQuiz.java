@@ -3,9 +3,12 @@ package com.apps.omar.quiz;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -57,6 +60,35 @@ public class CreateQuiz extends AppCompatActivity {
 
         //setcontextview
         registerForContextMenu(questionList);
+
+
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.create_quiz_toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar ab = getSupportActionBar();
+        ab.setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.finish_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId())
+        {
+            case R.id.finish_button:
+            {
+                createQuiz(null);
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -177,7 +209,5 @@ public class CreateQuiz extends AppCompatActivity {
             quizDesc.setText(quiz.getQuizDescription());
         }
 
-        Button button = (Button) findViewById(R.id.create_quiz_button);
-        button.setText("Edit quiz");
     }
 }

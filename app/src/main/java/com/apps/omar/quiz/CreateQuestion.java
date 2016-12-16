@@ -4,10 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -47,6 +52,35 @@ public class CreateQuestion extends AppCompatActivity {
 
         addEditText(false, "");
 
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.create_question_toolbar);
+        setSupportActionBar(toolbar);
+
+
+        ActionBar ab = getSupportActionBar();
+        ab.setDisplayHomeAsUpEnabled(true);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.finish_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId())
+        {
+            case R.id.finish_button:
+            {
+                createButton(null);
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 
@@ -93,8 +127,8 @@ public class CreateQuestion extends AppCompatActivity {
 
             for (int i = 0; i < parent.getChildCount(); i++) {
                 ViewGroup parent2 = (ViewGroup) parent.getChildAt(i);
-                RadioButton yesNoButton = (RadioButton) parent2.getChildAt(0);
-                EditText answer = (EditText) parent2.getChildAt(1);
+                RadioButton yesNoButton = (RadioButton) parent2.findViewById(R.id.answer_is_correct);
+                EditText answer = (EditText) parent2.findViewById(R.id.answer_edit_text);
                 if (answer.getText().length() > 0) {
                     if(yesNoButton.isChecked())
                         noCorrectAnswer = false;
@@ -159,7 +193,7 @@ public class CreateQuestion extends AppCompatActivity {
         LinearLayout parent = (LinearLayout) findViewById(R.id.linear_layout);
 
         LinearLayout childll = (LinearLayout) parent.getChildAt(parent.getChildCount() - 1);
-        EditText backet = (EditText) childll.getChildAt(1);
+        EditText backet = (EditText) childll.findViewById(R.id.answer_edit_text);
 
         if(child.getText().length() > 0) {
 
@@ -170,7 +204,11 @@ public class CreateQuestion extends AppCompatActivity {
         }
         else
         {
-            if (child != backet) {
+            if(parent.indexOfChild((View) child.getParent()) == parent.getChildCount() - 2)
+            {
+                parent.removeView(childll);
+            }
+            else {
                 parent.removeView((View) child.getParent());
                 backet.requestFocus();
             }

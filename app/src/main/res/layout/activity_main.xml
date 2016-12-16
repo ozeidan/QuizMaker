@@ -89,6 +89,12 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
+            <Button
+                android:text="Debug"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/debug_button"
+                android:onClick="debug" />
         </LinearLayout>
 
     </LinearLayout>0dp

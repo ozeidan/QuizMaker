@@ -3,9 +3,12 @@ package com.apps.omar.quiz;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -35,8 +38,16 @@ public class QuizMenu extends AppCompatActivity {
         quizList = (ListView) findViewById(R.id.quiz_list);
         quizList.setAdapter(adapter);
 
+        int requestCode;
+
         Intent intent = getIntent();
-        int requestCode = (int) intent.getExtras().get("requestCode");
+        try {
+            requestCode = (int) intent.getExtras().get("requestCode");
+        }
+        catch (NullPointerException e)
+        {
+            requestCode = 1;
+        }
 
         switch (requestCode) {
             case 1: {
@@ -56,9 +67,23 @@ public class QuizMenu extends AppCompatActivity {
                         playQuiz(i);
                     }
                 });
-                findViewById(R.id.new_quiz_button).setVisibility(View.INVISIBLE);
                 break;
         }
+
+        //set toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.quiz_menu_toolbar);
+        setSupportActionBar(toolbar);
+
+        //get action bar object
+        ActionBar ab = getSupportActionBar();
+        ab.setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.quiz_menu_menu, menu);
+        return true;
     }
 
     @Override
@@ -80,6 +105,18 @@ public class QuizMenu extends AppCompatActivity {
             }
             default:
                 return super.onContextItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId())
+        {
+            case R.id.new_quiz_button:
+                createQuiz(null);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item
+        android:title="finished"
+        android:id="@+id/finish_button"
+        app:showAsAction="ifRoom"/>
+        <!--android:icon="@android:drawable/checkbox_on_background"
+            find better icon here-->
+</menu>
