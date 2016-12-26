@@ -16,7 +16,6 @@ import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -86,14 +85,15 @@ public class QuizParser {
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource domSource = new DOMSource(doc);
             File file = new File(context.getFilesDir() + "/quizes/", quiz.getQuizName());
+            file.getParentFile().mkdirs();
+            file.createNewFile();
             StreamResult result = new StreamResult(file);
 
 
             //save
             transformer.transform(domSource, result);
             printFile(file);
-        }
-        catch(ParserConfigurationException | TransformerException e)
+        } catch (ParserConfigurationException | TransformerException | IOException e)
         {
             e.printStackTrace();
         }
@@ -200,17 +200,18 @@ public class QuizParser {
     {
         File folder = new File(context.getFilesDir() + "/quizes/");
         Log.d("QuizParser", "List of existing quizes:");
-        for(File file : folder.listFiles())
-        {
-            Log.d("QuizParser", file.getName());
+        if (folder.exists()) {
+            for (File file : folder.listFiles()) {
+                Log.d("QuizParser", file.getName());
+            }
         }
     }
 
-    public static void printFile(File file)
+    private static void printFile(File file)
     {
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-            String line = null;
+            String line;
             while((line = bufferedReader.readLine()) != null)
             {
                 Log.d("QuizParser", line);
