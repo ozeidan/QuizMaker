@@ -33,6 +33,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void statScreen(View view) {
+        Intent intent = new Intent(this, StatScreen.class);
+        startActivity(intent);
+    }
+
 
 
     public void debug(View view)

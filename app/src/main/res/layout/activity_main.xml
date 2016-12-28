@@ -67,12 +67,12 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/profile_button"
+                android:id="@+id/stats_button"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:text="Profile"
-                android:visibility="invisible" />
+                android:onClick="statScreen"
+                android:text="Stats" />
 
             <Button
                 android:id="@+id/settings_button"
@@ -90,11 +90,11 @@
             android:orientation="vertical">
 
             <Button
-                android:text="Debug"
+                android:id="@+id/debug_button"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/debug_button"
-                android:onClick="debug" />
+                android:onClick="debug"
+                android:text="Debug" />
         </LinearLayout>
 
     </LinearLayout>0dp

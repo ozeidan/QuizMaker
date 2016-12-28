@@ -18,20 +18,21 @@
         <activity android:name=".CreateQuiz">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.apps.omar.quiz.QuizMenu"/>
+                android:value="com.apps.omar.quiz.QuizMenu" />
         </activity>
-        <activity android:name=".CreateQuestion" >
+        <activity android:name=".CreateQuestion">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.apps.omar.quiz.CreateQuestion"/>
+                android:value="com.apps.omar.quiz.CreateQuestion" />
         </activity>
         <activity android:name=".QuizMenu">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.apps.omar.quiz.MainActivity"/>
+                android:value="com.apps.omar.quiz.MainActivity" />
         </activity>
         <activity android:name=".PlayQuiz" />
-        <activity android:name=".ScoreScreen"></activity>
+        <activity android:name=".ScoreScreen" />
+        <activity android:name=".StatScreen"></activity>
     </application>
 
 </manifest>

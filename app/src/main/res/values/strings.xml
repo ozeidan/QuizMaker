@@ -3,4 +3,6 @@
     <string name="quiz_name_hint">Name of the quiz</string>
     <string name="quiz_description">Description (optional)</string>
     <string name="question_name">Question</string>
+    <string name="stats_text">So far you have attempted to solve %1$d quizzes. Doing so, you were asked %2$d questions and answered %3$d of them correctly. That means that you have answered correctly %4$d percent of the time.</string>
+    <string name="no_stats_text">You haven\'t played yet!</string>
 </resources>

@@ -13,6 +13,7 @@ import com.apps.omar.quiz.Backend.Score;
 public class ScoreScreen extends AppCompatActivity {
     GameState gameState;
     AnswerHistoryAdapter adapter;
+    float score;
 
 
     @Override
@@ -23,28 +24,16 @@ public class ScoreScreen extends AppCompatActivity {
         Intent intent = this.getIntent();
         gameState = (GameState) intent.getExtras().get("gameState");
 
+        score = (float) gameState.getCorrectlyAnswered() / gameState.getAnswered() * 100;
 
         adapter = new AnswerHistoryAdapter(this, gameState.getAnswerHistory());
 
         ((ListView) findViewById(R.id.answer_history_list)).setAdapter(adapter);
 
         TextView textView = (TextView) findViewById(R.id.score_text_view);
-        textView.setText(gameState.getScoreString());
+        textView.setText(Float.toString(score));
 
-
-        // moved code to other function
-        saveScore(gameState);
-    }
-
-
-    // saves the achieved score if it is a highscore
-    private void saveScore(GameState gameState) {
-        long id = gameState.getId();
-        float score = gameState.getScoreFloat();
-
-        if (score > Score.loadScore(id)) {
-            Score.saveScore(id, score);
-        }
+        Score.saveScore(gameState);
     }
 
     public void nice(View view) {

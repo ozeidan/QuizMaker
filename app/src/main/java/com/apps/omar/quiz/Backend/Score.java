@@ -3,6 +3,8 @@ package com.apps.omar.quiz.Backend;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.apps.omar.quiz.GameState;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -77,17 +79,31 @@ public class Score {
         return id;
     }
 
-    public static void saveScore(long id, float score)
+
+    public static void saveScore(GameState gameState)
     {
         if(!initialized)
             throw new RuntimeException();
 
+        long id = gameState.getId();
+
         if(!scoreBoard.scores.containsKey(id))
             throw new RuntimeException("Something went wrong again!");
 
-        scoreBoard.scores.get(id).score = score;
+        updateStats(gameState);
+
+        float score = (float) gameState.getCorrectlyAnswered() / gameState.getAnswered() * 100;
+
+        if (score > scoreBoard.scores.get(id).score)
+            scoreBoard.scores.get(id).score = score;
 
         saveTable();
+    }
+
+    private static void updateStats(GameState gameState) {
+        scoreBoard.quizAttempts++;
+        scoreBoard.answerAttempts += gameState.getAnswered();
+        scoreBoard.correctAnswers += gameState.getCorrectlyAnswered();
     }
 
     public static float loadScore(long id)
@@ -126,14 +142,31 @@ public class Score {
         Toast.makeText(context, Long.toString(scoreBoard.idCount), Toast.LENGTH_SHORT).show();
     }
 
+    public static long getAttempts() {
+        return scoreBoard.quizAttempts;
+    }
+
+    public static long getAnswerAttempts() {
+        return scoreBoard.answerAttempts;
+    }
+
+    public static long getCorrectAnswers() {
+        return scoreBoard.correctAnswers;
+    }
+
     private static class ScoreBoard implements Serializable {
         public HashMap<Long, ScoreStruct> scores = new HashMap<>();
 
-        public long idCount = 0;
+        private long idCount = 0;
+        private long quizAttempts = 0;
+        private long answerAttempts = 0;
+        private long correctAnswers = 0;
     }
 
     private static class ScoreStruct implements Serializable {
         public float score = 0;
         //public int attempts = 0;
     }
+
+
 }

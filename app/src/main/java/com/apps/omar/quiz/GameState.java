@@ -23,6 +23,7 @@ public class GameState implements Serializable{
     private boolean answering = false;
 
     private int correctlyAnswered = 0;
+    private int answered = 0;
 
     private Random random = new Random();
 
@@ -73,23 +74,19 @@ public class GameState implements Serializable{
         {
             correctlyAnswered++;
         }
+        answered++;
 
         return correct;
     }
 
-    public String getScoreString()
+    public int getCorrectlyAnswered()
     {
-        float score = getScoreFloat();
-        String stringScore = Float.toString(score);
-        stringScore = stringScore.substring(0, Math.min(5, stringScore.length()));
-        stringScore += "%";
-        return stringScore;
+        return correctlyAnswered;
     }
 
-    public float getScoreFloat() {
-        return ((float) (correctlyAnswered) / (float) (answerHistory.getQuestionCount())) * 100;
+    public int getAnswered() {
+        return answered;
     }
-
 
     public boolean hasQuestion()
     {
