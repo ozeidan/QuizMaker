@@ -9,10 +9,10 @@ import java.util.ArrayList;
 public class Question implements Serializable {
     private String question;
     private ArrayList<Answer> answers;
-    private Answer correctAnswer = null;
+    private Answer correctAnswer;
 
     public Question() {
-
+        answers = new ArrayList<>();
     }
 
     public Question(String question, ArrayList<Answer> answers) {
@@ -33,6 +33,10 @@ public class Question implements Serializable {
         return question;
     }
 
+    public void setQuestion(String question) {
+        this.question = question;
+    }
+
     public ArrayList<Answer> getAnswers() {
         return answers;
     }
@@ -41,4 +45,11 @@ public class Question implements Serializable {
         return correctAnswer;
     }
 
+    public void addAnswer(Answer answer) {
+        answers.add(answer);
+
+        if (answer.isCorrect()) {
+            correctAnswer = answer;
+        }
+    }
 }

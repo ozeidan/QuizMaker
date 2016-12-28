@@ -20,6 +20,10 @@ public class Quiz implements Serializable {
         id = Score.getId(this);
     }
 
+    public Quiz(long id) {
+        this.id = id;
+    }
+
 
     public String getQuizName() {
         return quizName;
@@ -52,7 +56,6 @@ public class Quiz implements Serializable {
     }
 
     public long getId() {
-
         return id;
     }
 

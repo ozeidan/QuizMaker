@@ -18,6 +18,10 @@ public class YesNoQuestion extends Question {
         this.yesOrNo = yesOrNo;
     }
 
+    public YesNoQuestion() {
+        super();
+    }
+
     public YesNoQuestion(String question, ArrayList<Answer> answers)
     {
         super(question, answers);

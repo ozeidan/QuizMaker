@@ -5,12 +5,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.apps.omar.quiz.Backend.Quiz;
+import com.apps.omar.quiz.Backend.Score;
 import com.apps.omar.quiz.R;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -20,15 +20,17 @@ import java.util.ArrayList;
 
 public class QuizAdapter extends BaseAdapter {
 
+    private static LayoutInflater inflater = null;
     Context context;
     ArrayList<Quiz> data;
-    private static LayoutInflater inflater = null;
+    private boolean showScore;
 
-    public QuizAdapter(Context context, ArrayList<Quiz> data) {
+    public QuizAdapter(Context context, ArrayList<Quiz> data, boolean showScore) {
         this.context = context;
         this.data = data;
         inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.showScore = showScore;
     }
 
     @Override
@@ -60,6 +62,19 @@ public class QuizAdapter extends BaseAdapter {
             TextView desc = (TextView) vi.findViewById(R.id.description);
             desc.setText(quiz.getQuizDescription());
         }
+
+        float score = showScore ? Score.loadScore(quiz.getId()) : 0f;
+
+
+        // the green part of the list element which denotes the percentages of already correctly answered questions
+        View bar = vi.findViewById(R.id.correct_percent_bar);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, score);
+        bar.setLayoutParams(layoutParams);
+
+        // the not-green invisible part
+        View antiBar = vi.findViewById(R.id.incorrect_percent_bar);
+        layoutParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 100 - score);
+        antiBar.setLayoutParams(layoutParams);
 
         return vi;
     }

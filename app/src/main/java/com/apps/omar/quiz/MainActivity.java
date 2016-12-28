@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.apps.omar.quiz.Backend.QuizParser;
 import com.apps.omar.quiz.Backend.Score;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,6 +37,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void debug(View view)
     {
-        QuizParser.showFiles(this);
+        Score.debug();
     }
 }

@@ -1,6 +1,7 @@
 package com.apps.omar.quiz.Backend;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,10 +18,13 @@ public class Score {
     private static ScoreBoard scoreBoard;
     private static boolean initialized = false;
     private static String FILENAME = "score";
+    private static Context context;
 
     public static void initialize(Context context) {
         if (!initialized)
         {
+            Score.context = context;
+
             File file = new File(context.getFilesDir(), FILENAME);
 
             try {
@@ -68,10 +72,12 @@ public class Score {
 
         scoreBoard.scores.put(id, new ScoreStruct());
 
+        saveTable();
+
         return id;
     }
 
-    public static void saveScore(long id, int score, Context context)
+    public static void saveScore(long id, float score)
     {
         if(!initialized)
             throw new RuntimeException();
@@ -81,11 +87,21 @@ public class Score {
 
         scoreBoard.scores.get(id).score = score;
 
-        saveTable(context);
+        saveTable();
     }
 
-    private static void saveTable(Context context)
+    public static float loadScore(long id)
     {
+        if (!initialized)
+            throw new RuntimeException();
+
+        if (!scoreBoard.scores.containsKey(id))
+            throw new RuntimeException();
+
+        return scoreBoard.scores.get(id).score;
+    }
+
+    private static void saveTable() {
         try {
             File file = new File(context.getFilesDir(), FILENAME);
 
@@ -106,14 +122,18 @@ public class Score {
         }
     }
 
+    public static void debug() {
+        Toast.makeText(context, Long.toString(scoreBoard.idCount), Toast.LENGTH_SHORT).show();
+    }
 
     private static class ScoreBoard implements Serializable {
         public HashMap<Long, ScoreStruct> scores = new HashMap<>();
 
         public long idCount = 0;
     }
-    private static class ScoreStruct {
-        public int score = 0;
+
+    private static class ScoreStruct implements Serializable {
+        public float score = 0;
         //public int attempts = 0;
     }
 }

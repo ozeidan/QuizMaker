@@ -23,8 +23,8 @@ import java.util.ArrayList;
 public class QuizMenu extends AppCompatActivity {
 
     QuizAdapter adapter;
-    ArrayList<Quiz> quizes;
     ListView quizList;
+    private ArrayList<Quiz> quizes;
     private int deleteQuiz;
 
     @Override
@@ -32,11 +32,8 @@ public class QuizMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz_menu);
 
-        quizes = QuizParser.loadQuizes(this);
-        adapter = new QuizAdapter(this, quizes);
 
-        quizList = (ListView) findViewById(R.id.quiz_list);
-        quizList.setAdapter(adapter);
+
 
         int requestCode;
 
@@ -49,7 +46,17 @@ public class QuizMenu extends AppCompatActivity {
             requestCode = 1;
         }
 
+
+        quizes = QuizParser.loadQuizes(this);
+        adapter = new QuizAdapter(this, quizes, requestCode == 0); //only show the scores when in play menu -> requestcode equals 0
+
+        quizList = (ListView) findViewById(R.id.quiz_list);
+        quizList.setAdapter(adapter);
+
+
+
         switch (requestCode) {
+            //Editing
             case 1: {
                 quizList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
@@ -60,6 +67,7 @@ public class QuizMenu extends AppCompatActivity {
                 registerForContextMenu(quizList);
                 break;
             }
+            //Playing
             case 0:
                 quizList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
@@ -67,6 +75,7 @@ public class QuizMenu extends AppCompatActivity {
                         playQuiz(i);
                     }
                 });
+
                 break;
         }
 
@@ -100,7 +109,6 @@ public class QuizMenu extends AppCompatActivity {
             case 1: {
                 AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
                 QuizParser.deleteQuiz(this, (Quiz) adapter.getItem(info.position));
-                quizes.remove(info.position);
                 adapter.notifyDataSetChanged();
             }
             default:
@@ -153,47 +161,46 @@ public class QuizMenu extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
+        adapter.notifyDataSetChanged();
         switch(requestCode)
         {
-            case(0):
+            case (0): //returning activity created a quiz
             {
                 if(resultCode == Activity.RESULT_OK)
                 {
                     Quiz quiz = (Quiz) data.getSerializableExtra("quiz");
-                    quizes.add(quiz);
-                    adapter.notifyDataSetChanged();
-
                     QuizParser.saveQuiz(quiz, this);
+                    adapter.notifyDataSetChanged();
                 }
                 break;
             }
-            case(1):
+            case (1): //returning activity changed a quiz
             {
                 if(resultCode == Activity.RESULT_OK)
                 {
                     QuizParser.deleteQuiz(this, quizes.get(deleteQuiz));
-                    quizes.remove(deleteQuiz);
                     Quiz newQuiz = (Quiz) data.getSerializableExtra("quiz");
-                    quizes.add(deleteQuiz, newQuiz);
-                    adapter.notifyDataSetChanged();
-
                     QuizParser.saveQuiz(newQuiz, this);
+                    adapter.notifyDataSetChanged();
                 }
                 break;
             }
-            case (2): {
+            case (2): //returning acitvity played a quiz
+            {
                 if (resultCode == Activity.RESULT_OK) {
                     GameState gameState = (GameState) data.getExtras().get("gameState");
-                    if (gameState.hasQuestion()) {
+                    if (gameState.hasQuestion()) { //there are still questions, back to the playing activity
                         playQuiz(gameState);
                     }
                     else
                     {
+                        // no more questions, view the score screen
                         Intent intent = new Intent(this, ScoreScreen.class);
                         intent.putExtra("gameState", gameState);
-                        startActivity(intent);
+                        startActivityForResult(intent, 3); // probably not needed
                     }
                 }
+                break;
             }
         }
     }

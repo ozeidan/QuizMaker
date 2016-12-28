@@ -8,176 +8,180 @@ package com.apps.omar.quiz.Backend;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.Xml;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 public class QuizParser {
     private static boolean loaded = false;
-    private static ArrayList<Quiz> quizList;
+    private static ArrayList<Quiz> quizList = new ArrayList<>();
 
-    public static void saveQuiz(Quiz quiz, Context context)
+
+    public static ArrayList<Quiz> saveQuiz(Quiz quiz, Context context)
     {
         if (loaded) {
             quizList.add(quiz);
         }
 
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.newDocument();
+
+            XmlSerializer serializer = Xml.newSerializer();
+            StringWriter stringWriter = new StringWriter();
+            serializer.setOutput(stringWriter);
 
             //root element quiz
-            Element rootElement = doc.createElement("quiz");
+            serializer.startDocument("UTF-8", true);
+            serializer.startTag("", "quiz");
 
             //set name attribute
-            rootElement.setAttribute("name", quiz.getQuizName());
+            serializer.attribute("", "name", quiz.getQuizName());
+
+
+            //save the id
+            serializer.attribute("", "id", Long.toString(quiz.getId()));
 
 
             //set description attribute
             if(quiz.getQuizDescription() != null)
-                rootElement.setAttribute("description", quiz.getQuizDescription());
-
-            //apend to document
-            doc.appendChild(rootElement);
+                serializer.attribute("", "description", quiz.getQuizDescription());
 
             //get questions and append them to root element
             ArrayList<Question> questions = quiz.getQuestions();
             for(Question question : questions)
             {
-                Element questionElement = doc.createElement("question");
+                serializer.startTag("", "question");
 
                 //set question name
-                questionElement.setAttribute("name", question.getQuestion());
-                questionElement.setAttribute("yesNo", question instanceof YesNoQuestion ? "true" : "false");
+                serializer.attribute("", "name", question.getQuestion());
+                serializer.attribute("", "yesNo", question instanceof YesNoQuestion ? "true" : "false");
 
                 //set answers
                 for (Answer answer : question.getAnswers()) {
-                    Element answerElement = doc.createElement("answer");
-                    answerElement.setAttribute("name", answer.getAnswer());
-                    answerElement.setAttribute("correct", answer.isCorrect() ? "true" : "false");
-                    questionElement.appendChild(answerElement);
+                    serializer.startTag("", "answer");
+                    serializer.attribute("", "name", answer.getAnswer());
+                    serializer.attribute("", "correct", answer.isCorrect() ? "true" : "false");
+                    serializer.endTag("", "answer");
                 }
 
+                serializer.endTag("", "question");
 
-                rootElement.appendChild(questionElement);
             }
 
-            //transform to XML
-            TransformerFactory transformerFactory    = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource domSource = new DOMSource(doc);
+            serializer.endTag("", "quiz");
+            serializer.flush();
+
+            //save
             File file = new File(context.getFilesDir() + "/quizes/", quiz.getQuizName());
             file.getParentFile().mkdirs();
             file.createNewFile();
-            StreamResult result = new StreamResult(file);
+            FileOutputStream fileos = new FileOutputStream(file);
 
+            fileos.write(stringWriter.toString().getBytes());
+            fileos.close();
 
-            //save
-            transformer.transform(domSource, result);
-            printFile(file);
-        } catch (ParserConfigurationException | TransformerException | IOException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
         }
 
+        return quizList;
+
     }
 
-    public static ArrayList<Quiz> loadQuizes(Context context)
-    {
-        if (loaded) {
+    public static ArrayList<Quiz> loadQuizes(Context context) {
+        if (loaded)
+            return quizList;
+
+
+        XmlPullParser parser = Xml.newPullParser();
+
+
+        File folder = new File(context.getFilesDir() + "/quizes/");
+
+        if (folder.listFiles() == null) {
             return quizList;
         }
 
-        ArrayList<Quiz> quizList = new ArrayList<>();
 
-
-            File folder = new File(context.getFilesDir() + "/quizes/");
-
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
+        for (File file : folder.listFiles()) {
             try {
-                DocumentBuilder builder = factory.newDocumentBuilder();
+                FileInputStream fis = new FileInputStream(file);
+                parser.setInput(fis, null);
 
+                int eventType = parser.getEventType();
 
-                if (folder.listFiles() != null) {
-                    for (File file : folder.listFiles()) {
-                        try {
-                            Quiz quiz = new Quiz();
+                Quiz quiz = null;
+                Question question = null;
+                Answer answer = null;
 
-                            Document doc = builder.parse(file);
-
-                            doc.getDocumentElement().normalize();
-
-                            quiz.setQuizName(doc.getDocumentElement().getAttribute("name"));
-                            quiz.setQuizDescription(doc.getDocumentElement().getAttribute("description"));
-
-                            NodeList questions = doc.getElementsByTagName("question");
-
-                            for (int i = 0; i < questions.getLength(); i++) {
-                                Element questionElement = (Element) questions.item(i);
-
-                                Question question;
-                                String name = questionElement.getAttribute("name");
-
-                                NodeList answers = questionElement.getChildNodes();
-                                ArrayList<Answer> answerObs = new ArrayList<>();
-
-                                for (int j = 0; j < answers.getLength(); j++) {
-                                    Element answerElement = (Element) answers.item(j);
-
-                                    String answerName = answerElement.getAttribute("name");
-                                    boolean correct = answerElement.getAttribute("correct").equals("true");
-
-                                    Answer answer = new Answer(answerName, correct);
-                                    answerObs.add(answer);
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    switch (eventType) {
+                        case (XmlPullParser.START_DOCUMENT): {
+                            quiz = null;
+                            break;
+                        }
+                        case (XmlPullParser.START_TAG): {
+                            switch (parser.getName()) {
+                                case ("quiz"): {
+                                    quiz = new Quiz(Long.parseLong(parser.getAttributeValue("", "id")));
+                                    quiz.setQuizName((parser.getAttributeValue("", "name")));
+                                    quiz.setQuizDescription(parser.getAttributeValue("", "description"));
+                                    break;
                                 }
-
-
-                                if (questionElement.getAttribute("yesNo").equals("true")) {
-                                    question = new YesNoQuestion(name, answerObs);
-                                } else {
-                                    question = new Question(name, answerObs);
+                                case ("question"): {
+                                    boolean yesNo = parser.getAttributeValue("", "yesNo").equals("true");
+                                    question = yesNo ? new YesNoQuestion() : new Question();
+                                    question.setQuestion(parser.getAttributeValue("", "name"));
+                                    break;
                                 }
-
-                                quiz.addQuestion(question);
+                                case ("answer"): {
+                                    answer = new Answer();
+                                    answer.setAnswer(parser.getAttributeValue("", "name"));
+                                    answer.setCorrect(parser.getAttributeValue("", "correct").equals("true"));
+                                    break;
+                                }
                             }
-
-                            quizList.add(quiz);
-
+                            break;
                         }
-                        catch(SAXException | IOException e)
-                        {
-                            e.printStackTrace();
+                        case (XmlPullParser.END_TAG): {
+                            switch (parser.getName()) {
+                                case ("quiz"): {
+                                    quizList.add(quiz);
+                                    break;
+                                }
+                                case ("question"): {
+                                    quiz.addQuestion(question);
+                                    break;
+                                }
+                                case ("answer"): {
+                                    question.addAnswer(answer);
+                                    break;
+                                }
+                            }
                         }
+                        break;
                     }
+                    eventType = parser.next();
                 }
-            }
-            catch(ParserConfigurationException e)
-            {
+
+            } catch (XmlPullParserException | IOException e) {
                 e.printStackTrace();
             }
-
-
-        return quizList;
-
+        }
+        loaded = true;
+        return QuizParser.quizList;
     }
 
     public static boolean deleteQuiz(Context context, Quiz quiz)

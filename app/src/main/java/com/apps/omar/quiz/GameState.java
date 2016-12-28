@@ -26,6 +26,8 @@ public class GameState implements Serializable{
 
     private Random random = new Random();
 
+    private long id;
+
 
     private Quiz quiz;
 
@@ -33,6 +35,7 @@ public class GameState implements Serializable{
     {
         this.quiz = quiz;
         unanswered = quiz.getQuestions();
+        id = quiz.getId();
     }
 
     public AnswerHistory getAnswerHistory() {
@@ -74,13 +77,17 @@ public class GameState implements Serializable{
         return correct;
     }
 
-    public String getScorePercent()
+    public String getScoreString()
     {
-        float score = ((float) (correctlyAnswered) / (float) (answerHistory.getQuestionCount())) * 100;
+        float score = getScoreFloat();
         String stringScore = Float.toString(score);
         stringScore = stringScore.substring(0, Math.min(5, stringScore.length()));
         stringScore += "%";
         return stringScore;
+    }
+
+    public float getScoreFloat() {
+        return ((float) (correctlyAnswered) / (float) (answerHistory.getQuestionCount())) * 100;
     }
 
 
@@ -94,23 +101,13 @@ public class GameState implements Serializable{
         return currentQuestion.getAnswers();
     }
 
-
+    public long getId() {
+        return id;
+    }
 
     public class AnswerHistory implements Serializable, Iterable<AnswerHistory.QuestionCorrectPair>
     {
         private ArrayList<QuestionCorrectPair> history = new ArrayList<>();
-
-        //implemented own pair class because Pair is not serializable
-        public class QuestionCorrectPair implements Serializable
-        {
-            public Question question;
-            public boolean correct;
-
-            public QuestionCorrectPair(Question question, boolean correct) {
-                this.question = question;
-                this.correct = correct;
-            }
-        }
 
         @Override
         public Iterator<QuestionCorrectPair> iterator() {
@@ -127,13 +124,21 @@ public class GameState implements Serializable{
             return history.size();
         }
 
-
         public QuestionCorrectPair getEntry(int position)
         {
             return history.get(position);
         }
 
+        //implemented own pair class because Pair is not serializable
+        public class QuestionCorrectPair implements Serializable {
+            public Question question;
+            public boolean correct;
+
+            public QuestionCorrectPair(Question question, boolean correct) {
+                this.question = question;
+                this.correct = correct;
+            }
+        }
+
     }
-
-
 }
